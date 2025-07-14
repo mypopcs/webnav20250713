@@ -5,6 +5,7 @@ import { UserModule } from '../user/user.module'; // 导入用户模块
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { LocalStrategy } from './local.strategy'; // 导入 LocalStrategy
 
 @Module({
   imports: [
@@ -28,6 +29,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService], // 我们稍后会在这里添加 Passport 策略 (Strategies)
+  providers: [AuthService,LocalStrategy], // 我们稍后会在这里添加 Passport 策略 (Strategies)
 })
 export class AuthModule {}

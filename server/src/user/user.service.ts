@@ -31,6 +31,11 @@ export class UserService {
     // 这个方法可以返回 null，因为它是服务内部逻辑，比如注册时检查邮箱是否存在
     return this.userModel.findOne({ email }).exec();
   }
+  async findOneByEmailWithPassword(email: string): Promise<UserDocument | null> {
+    // 使用 .select('+password') 来强制包含被排除的字段
+    return this.userModel.findOne({ email }).select('+password').exec();
+  }
+
 
   async update(id: string, updateUserDto: UpdateUserDto): Promise<UserDocument> {
     // findByIdAndUpdate 在找不到时也会返回 null
