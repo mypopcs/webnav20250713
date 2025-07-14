@@ -63,4 +63,24 @@ export class AuthService {
       refresh_token: refreshToken,
     };
   }
+  /**
+   * 刷新并生成一个新的访问令牌
+   * @param user 已验证的用户对象 (来自 JwtRefreshStrategy)
+   * @returns 只包含新的 access_token
+   */
+  async refreshToken(user: ValidatedUserPayload) {
+    // 载荷可以与 login 时保持一致
+    const payload = {
+      sub: user.id,
+      email: user.email,
+      role: user.role,
+    };
+
+    // 只签发一个新的 access_token
+    const newAccessToken = this.jwtService.sign(payload);
+
+    return {
+      access_token: newAccessToken,
+    };
+  }
 }

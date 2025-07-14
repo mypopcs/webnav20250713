@@ -12,7 +12,8 @@ import { AuthService } from './auth.service';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { LocalAuthGuard } from './local-auth.guard';
 import { Response as ExpressResponse } from 'express';
-import { JwtAuthGuard } from './jwt-auth.guard'; // 导入 JwtAuthGuard
+import { JwtAuthGuard } from './jwt-auth.guard';
+import { JwtRefreshGuard } from './jwt-refresh.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -52,5 +53,32 @@ export class AuthController {
   getProfile(@Request() req) {
     // req.user 是由 JwtStrategy 的 validate 方法返回的 payload 对象
     return req.user;
+  }
+  /**
+   * 使用 refresh_token 获取新的 access_token
+   */
+  @UseGuards(JwtRefreshGuard)
+  @Post('refresh')
+  async refreshToken(
+    @Request() req,
+    @Response({ passthrough: true }) res: ExpressResponse,
+  ) {
+    const newTokens = await this.authService.refreshToken(req.user);
+    // 重新设置新的 access_token
+    res.cookie('access_token', newTokens.access_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+    });
+    return { statusCode: 200, message: '令牌刷新成功' };
+  }
+  /**
+   * 退出登录
+   */
+  @Post('logout')
+  logout(@Response({ passthrough: true }) res: ExpressResponse) {
+    // 清除 cookie
+    res.clearCookie('access_token');
+    res.clearCookie('refresh_token');
+    return { statusCode: 200, message: '退出成功' };
   }
 }
