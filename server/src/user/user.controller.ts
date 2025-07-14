@@ -1,4 +1,12 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -17,18 +25,22 @@ export class UserController {
     return this.userService.findAll();
   }
 
+  // --- VVVV 这里是修改点 VVVV ---
+  // @Param('id') id: number  ->  @Param('id') id: string
   @Get(':id')
   findOne(@Param('id') id: string) {
-    return this.userService.findOne(+id);
+    return this.userService.findOne(id);
   }
 
+  // --- VVVV 这里是修改点 VVVV ---
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
-    return this.userService.update(+id, updateUserDto);
+    return this.userService.update(id, updateUserDto);
   }
 
+  // --- VVVV 这里是修改点 VVVV ---
   @Delete(':id')
   remove(@Param('id') id: string) {
-    return this.userService.remove(+id);
+    return this.userService.remove(id);
   }
 }

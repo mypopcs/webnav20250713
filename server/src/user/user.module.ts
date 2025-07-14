@@ -6,6 +6,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { User, UserSchema } from './entities/user.entity';
 
 @Module({
+   // 这里的 forFeature 就是把 Model 和 Schema 绑定起来，提供给依赖注入系统
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
   ],

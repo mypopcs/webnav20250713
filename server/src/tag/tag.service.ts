@@ -1,26 +1,50 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common'; // 导入 NotFoundException
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 import { CreateTagDto } from './dto/create-tag.dto';
 import { UpdateTagDto } from './dto/update-tag.dto';
+import { Tag, TagDocument } from './entities/tag.entity';
 
 @Injectable()
 export class TagService {
-  create(createTagDto: CreateTagDto) {
-    return 'This action adds a new tag';
+  constructor(@InjectModel(Tag.name) private tagModel: Model<TagDocument>) {}
+
+  async create(createTagDto: CreateTagDto): Promise<TagDocument> {
+    const createdTag = new this.tagModel(createTagDto);
+    return createdTag.save();
   }
 
-  findAll() {
-    return `This action returns all tag`;
+  async findAll(): Promise<TagDocument[]> {
+    return this.tagModel.find().exec();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} tag`;
+  async findOne(id: string): Promise<TagDocument> {
+    const tag = await this.tagModel.findById(id).exec();
+    if (!tag) {
+      throw new NotFoundException(`ID 为 "${id}" 的标签不存在`);
+    }
+    return tag;
   }
 
-  update(id: number, updateTagDto: UpdateTagDto) {
-    return `This action updates a #${id} tag`;
+  async findOneByName(name: string): Promise<TagDocument | null> {
+    return this.tagModel.findOne({ name }).exec();
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} tag`;
+  async update(id: string, updateTagDto: UpdateTagDto): Promise<TagDocument> {
+    const updatedTag = await this.tagModel
+      .findByIdAndUpdate(id, updateTagDto, { new: true })
+      .exec();
+    if (!updatedTag) {
+      throw new NotFoundException(`ID 为 "${id}" 的标签不存在`);
+    }
+    return updatedTag;
+  }
+
+  async remove(id: string): Promise<TagDocument> {
+    const deletedTag = await this.tagModel.findByIdAndDelete(id).exec();
+    if (!deletedTag) {
+      throw new NotFoundException(`ID 为 "${id}" 的标签不存在`);
+    }
+    return deletedTag;
   }
 }
