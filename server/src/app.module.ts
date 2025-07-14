@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 import { CategoryModule } from './category/category.module';
 import { TagModule } from './tag/tag.module';
 import { WebsiteModule } from './website/website.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -43,6 +44,8 @@ import { WebsiteModule } from './website/website.module';
     TagModule,
 
     WebsiteModule,
+
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
