@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common'; // 导入 ValidationPipe
+import * as cookieParser from 'cookie-parser'; // 导入 cookie-parser
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -13,6 +14,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true, // 如果传入了 DTO 中未定义的属性，则抛出错误
     }),
   );
+  app.use(cookieParser());
   // --- AAAA 在这里添加代码 AAAA ---
 
   await app.listen(3000);

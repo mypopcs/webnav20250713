@@ -1,6 +1,7 @@
 // /server/src/auth/auth.controller.ts
 import {
   Controller,
+  Get,
   Post,
   Body,
   UseGuards,
@@ -11,6 +12,7 @@ import { AuthService } from './auth.service';
 import { RegisterUserDto } from './dto/register-user.dto';
 import { LocalAuthGuard } from './local-auth.guard';
 import { Response as ExpressResponse } from 'express';
+import { JwtAuthGuard } from './jwt-auth.guard'; // 导入 JwtAuthGuard
 
 @Controller('auth')
 export class AuthController {
@@ -40,5 +42,15 @@ export class AuthController {
     });
 
     return { statusCode: 200, message: '登录成功', user: req.user };
+  }
+  /**
+   * 获取当前登录用户的个人信息
+   * 这个接口受 JwtAuthGuard 保护，只有携带有效 access_token 的请求才能访问
+   */
+  @UseGuards(JwtAuthGuard)
+  @Get('profile')
+  getProfile(@Request() req) {
+    // req.user 是由 JwtStrategy 的 validate 方法返回的 payload 对象
+    return req.user;
   }
 }
