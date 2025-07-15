@@ -11,7 +11,10 @@ declare module 'vue' {
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    UApp: typeof import('./node_modules/.pnpm/@nuxt+ui@3.2.0_@babel+parse_119a41ca136e24f38e059c593fcecfd7/node_modules/@nuxt/ui/dist/runtime/components/App.vue')['default']
-    UButton: typeof import('./node_modules/.pnpm/@nuxt+ui@3.2.0_@babel+parse_119a41ca136e24f38e059c593fcecfd7/node_modules/@nuxt/ui/dist/runtime/components/Button.vue')['default']
+    UApp: typeof import('./node_modules/.pnpm/@nuxt+ui@3.2.0_@babel+parse_dd1ecbc991e5456f3362888c3f8f4398/node_modules/@nuxt/ui/dist/runtime/components/App.vue')['default']
+    UButton: typeof import('./node_modules/.pnpm/@nuxt+ui@3.2.0_@babel+parse_dd1ecbc991e5456f3362888c3f8f4398/node_modules/@nuxt/ui/dist/runtime/components/Button.vue')['default']
+    UCard: typeof import('./node_modules/.pnpm/@nuxt+ui@3.2.0_@babel+parse_dd1ecbc991e5456f3362888c3f8f4398/node_modules/@nuxt/ui/dist/runtime/components/Card.vue')['default']
+    UForm: typeof import('./node_modules/.pnpm/@nuxt+ui@3.2.0_@babel+parse_dd1ecbc991e5456f3362888c3f8f4398/node_modules/@nuxt/ui/dist/runtime/components/Form.vue')['default']
+    UInput: typeof import('./node_modules/.pnpm/@nuxt+ui@3.2.0_@babel+parse_dd1ecbc991e5456f3362888c3f8f4398/node_modules/@nuxt/ui/dist/runtime/components/Input.vue')['default']
   }
 }
