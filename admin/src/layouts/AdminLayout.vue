@@ -1,64 +1,53 @@
 <template>
-  <div class="flex h-screen bg-gray-100 dark:bg-gray-900">
-    <aside
-      class="w-64 flex-shrink-0 bg-white dark:bg-gray-800 border-r dark:border-gray-700"
-    >
-      <div class="p-4 text-center text-lg font-bold">导航后台</div>
-      <nav class="p-4 space-y-2">
-        <UButton
-          to="/"
-          icon="i-heroicons-home"
-          size="xl"
-          variant="ghost"
-          label="仪表盘"
-          block
-        />
-        <UButton
-          to="/categories"
-          icon="i-heroicons-rectangle-stack"
-          size="xl"
-          variant="ghost"
-          label="分类管理"
-          block
-        />
-        <UButton
-          icon="i-heroicons-arrow-left-on-rectangle"
-          size="xl"
-          variant="ghost"
-          label="退出登录"
-          color="error"
-          block
-          @click="handleLogout"
-        />
-      </nav>
-    </aside>
-
-    <main class="flex-1 overflow-y-auto">
-      <div class="p-8">
-        <RouterView />
-      </div>
-    </main>
-  </div>
+  <el-container class="h-screen">
+    <el-aside width="200px" class="bg-white border-r">
+      <el-menu :default-active="$route.path" router class="h-full">
+        <div class="p-4 text-center text-lg font-bold">导航后台</div>
+        <el-menu-item index="/">
+          <el-icon><House /></el-icon>
+          <span>仪表盘</span>
+        </el-menu-item>
+        <el-menu-item index="/categories">
+          <el-icon><Folder /></el-icon>
+          <span>分类管理</span>
+        </el-menu-item>
+        <div class="flex-grow"></div>
+        <el-menu-item @click="handleLogout">
+          <el-icon><SwitchButton /></el-icon>
+          <span>退出登录</span>
+        </el-menu-item>
+      </el-menu>
+    </el-aside>
+    <el-main class="bg-gray-50 p-8">
+      <router-view />
+    </el-main>
+  </el-container>
 </template>
 
 <script setup lang="ts">
-import { useAuthStore } from "../stores/auth";
 import { useRouter } from "vue-router";
+import { useAuthStore } from "../stores/auth";
 import { logoutApi } from "../apis/auth";
+import { ElMessage, ElMessageBox } from "element-plus";
+import { House, Folder, SwitchButton } from "@element-plus/icons-vue";
 
 const authStore = useAuthStore();
 const router = useRouter();
-const { add: addToast } = useToast();
 
 const handleLogout = async () => {
+  await ElMessageBox.confirm("您确定要退出登录吗？", "提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+  });
   try {
-    await logoutApi(); // 调用后端退出接口
+    await logoutApi();
     authStore.currentUser = null;
     authStore.isLoggedIn = false;
-    addToast({ title: "已退出登录" });
+    ElMessage.success("已成功退出登录");
     router.push("/login");
   } catch (error) {
-    addToast({ title: "退出失败", color: "error" });
+    ElMessage.error("退出失败");
   }
 };
 </script>

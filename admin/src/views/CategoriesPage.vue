@@ -1,121 +1,169 @@
 <template>
   <div>
-    <div class="flex justify-between items-center mb-4">
+    <div class="flex justify-between items-center mb-6">
       <h1 class="text-2xl font-bold">分类管理</h1>
-      <UButton label="新建分类" @click="isModalOpen = true" />
+      <el-button type="primary" @click="openModal()">新建分类</el-button>
     </div>
 
-    <UTable :columns="columns" :rows="categories" :loading="isLoading">
-      <template #actions-data="{ row }">
-        <UButton
-          icon="i-heroicons-pencil-square"
-          size="sm"
-          variant="ghost"
-          class="mr-2"
-          @click="handleEdit(row)"
-        />
-        <UButton
-          icon="i-heroicons-trash"
-          size="sm"
-          color="error"
-          variant="ghost"
-          @click="handleDelete(row)"
-        />
-      </template>
-    </UTable>
-
-    <UModal v-model="isModalOpen">
-      <UCard>
-        <template #header>
-          <h2 class="text-lg font-semibold">
-            {{ isEditing ? "编辑" : "新建" }}分类
-          </h2>
+    <el-table :data="categories" v-loading="isLoading" border stripe>
+      <el-table-column prop="name" label="名称" />
+      <el-table-column prop="order" label="排序值" sortable />
+      <el-table-column prop="createdAt" label="创建时间">
+        <template #default="{ row }">
+          {{ new Date(row.createdAt).toLocaleString() }}
         </template>
+      </el-table-column>
+      <el-table-column label="操作" width="120">
+        <template #default="{ row }">
+          <el-button link type="primary" size="small" @click="openModal(row)"
+            >编辑</el-button
+          >
+          <el-button link type="danger" size="small" @click="handleDelete(row)"
+            >删除</el-button
+          >
+        </template>
+      </el-table-column>
+    </el-table>
 
-        <UForm :state="formState" class="space-y-4" @submit="handleSubmit">
-          <UFormGroup label="分类名称" name="name">
-            <UInput v-model="formState.name" />
-          </UFormGroup>
-          <UFormGroup label="排序" name="order">
-            <UInput v-model.number="formState.order" type="number" />
-          </UFormGroup>
-          <UButton type="submit" :loading="isSubmitting"> 提 交 </UButton>
-        </UForm>
-      </UCard>
-    </UModal>
+    <el-dialog
+      v-model="isModalOpen"
+      :title="isEditing ? '编辑分类' : '新建分类'"
+      width="500px"
+    >
+      <el-form
+        ref="formRef"
+        :model="formState"
+        :rules="formRules"
+        label-width="80px"
+      >
+        <el-form-item label="分类名称" prop="name">
+          <el-input v-model="formState.name" placeholder="请输入分类名称" />
+        </el-form-item>
+        <el-form-item label="排序值" prop="order">
+          <el-input-number v-model="formState.order" :min="0" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <el-button @click="isModalOpen = false">取 消</el-button>
+        <el-button type="primary" @click="handleSubmit" :loading="isSubmitting"
+          >确 定</el-button
+        >
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
-import { getAllCategoriesApi, createCategoryApi } from "../apis/category";
+import { ref, onMounted, reactive } from "vue";
+import {
+  getAllCategoriesApi,
+  createCategoryApi,
+  updateCategoryApi,
+  deleteCategoryApi,
+} from "../apis/category";
+import {
+  ElMessage,
+  ElMessageBox,
+  type FormInstance,
+  type FormRules,
+} from "element-plus";
 
-const { add: addToast } = useToast();
+interface Category {
+  _id: string;
+  name: string;
+  order: number;
+  createdAt: string;
+  updatedAt: string;
+}
 
-// 表格列定义
-const columns = [
-  { key: "name", label: "名称" },
-  { key: "order", label: "排序" },
-  { key: "actions", label: "操作" },
-];
+const categories = ref<Category[]>([]);
+const isLoading = ref(false);
+const isModalOpen = ref(false);
+const isEditing = ref(false);
+const isSubmitting = ref(false);
 
-const categories = ref([]); // 分类列表数据
-const isLoading = ref(false); // 表格加载状态
-const isModalOpen = ref(false); // 模态框开关
-const isEditing = ref(false); // 是否为编辑模式
-const isSubmitting = ref(false); // 表单提交状态
-
-// 表单状态
-const formState = ref({
-  id: "",
+const formRef = ref<FormInstance>();
+const defaultFormState = {
+  _id: "",
   name: "",
   order: 0,
+};
+const formState = ref({ ...defaultFormState });
+const formRules = reactive<FormRules>({
+  name: [{ required: true, message: "分类名称不能为空", trigger: "blur" }],
 });
 
-// 获取所有分类
 const fetchCategories = async () => {
   isLoading.value = true;
   try {
     const { data } = await getAllCategoriesApi();
     categories.value = data;
   } catch (error) {
-    addToast({ title: "获取分类失败", color: "error" });
+    ElMessage.error("获取分类列表失败");
   } finally {
     isLoading.value = false;
   }
 };
 
-// 组件挂载时获取数据
 onMounted(fetchCategories);
 
-// 表单提交处理
-const handleSubmit = async () => {
-  isSubmitting.value = true;
-  try {
-    // 调用创建API
-    await createCategoryApi({
-      name: formState.value.name,
-      order: formState.value.order,
-    });
-    addToast({ title: "创建成功", color: "success" });
-    isModalOpen.value = false; // 关闭模态框
-    fetchCategories(); // 重新获取列表
-  } catch (error: any) {
-    const errorMessage = error.response?.data?.message || "操作失败";
-    addToast({ title: "错误", description: errorMessage, color: "error" });
-  } finally {
-    isSubmitting.value = false;
+const openModal = (category?: Category) => {
+  if (category?._id) {
+    isEditing.value = true;
+    formState.value = { ...category };
+  } else {
+    isEditing.value = false;
+    formState.value = { ...defaultFormState };
   }
+  isModalOpen.value = true;
 };
 
-// TODO: 编辑和删除逻辑
-const handleEdit = (row: any) => {
-  addToast({ title: "编辑功能待实现" });
-  console.log("Edit", row);
+const handleSubmit = async () => {
+  if (!formRef.value) return;
+  await formRef.value.validate(async (valid) => {
+    if (valid) {
+      isSubmitting.value = true;
+      try {
+        if (isEditing.value) {
+          await updateCategoryApi(formState.value._id, {
+            name: formState.value.name,
+            order: formState.value.order,
+          });
+          ElMessage.success("更新成功");
+        } else {
+          await createCategoryApi({
+            name: formState.value.name,
+            order: formState.value.order,
+          });
+          ElMessage.success("创建成功");
+        }
+        isModalOpen.value = false;
+        fetchCategories();
+      } catch (error: any) {
+        const errorMessage = error.response?.data?.message || "操作失败";
+        ElMessage.error(errorMessage);
+      } finally {
+        isSubmitting.value = false;
+      }
+    }
+  });
 };
 
-const handleDelete = (row: any) => {
-  addToast({ title: "删除功能待实现" });
-  console.log("Delete", row);
+const handleDelete = async (row: Category) => {
+  try {
+    await ElMessageBox.confirm(`您确定要删除分类 "${row.name}" 吗？`, "警告", {
+      confirmButtonText: "确定删除",
+      cancelButtonText: "取消",
+      type: "warning",
+    });
+    await deleteCategoryApi(row._id);
+    ElMessage.success("删除成功");
+    fetchCategories();
+  } catch (error) {
+    // 如果用户点击取消，会进入catch，这里不做提示
+    if (error !== "cancel") {
+      ElMessage.error("删除失败");
+    }
+  }
 };
 </script>

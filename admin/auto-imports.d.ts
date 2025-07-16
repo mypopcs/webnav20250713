@@ -32,21 +32,3 @@ declare global {
   const usePortal: typeof import('./node_modules/.pnpm/@nuxt+ui@3.2.0_@babel+parse_dd1ecbc991e5456f3362888c3f8f4398/node_modules/@nuxt/ui/dist/runtime/composables/usePortal.js')['usePortal']
   const useToast: typeof import('./node_modules/.pnpm/@nuxt+ui@3.2.0_@babel+parse_dd1ecbc991e5456f3362888c3f8f4398/node_modules/@nuxt/ui/dist/runtime/composables/useToast.js')['useToast']
 }
-// for type re-export
-declare global {
-  // @ts-ignore
-  export type { ShortcutConfig, ShortcutsConfig, ShortcutsOptions } from './node_modules/.pnpm/@nuxt+ui@3.2.0_@babel+parse_dd1ecbc991e5456f3362888c3f8f4398/node_modules/@nuxt/ui/dist/runtime/composables/defineShortcuts.d'
-  import('./node_modules/.pnpm/@nuxt+ui@3.2.0_@babel+parse_dd1ecbc991e5456f3362888c3f8f4398/node_modules/@nuxt/ui/dist/runtime/composables/defineShortcuts.d')
-  // @ts-ignore
-  export type { UseComponentIconsProps } from './node_modules/.pnpm/@nuxt+ui@3.2.0_@babel+parse_dd1ecbc991e5456f3362888c3f8f4398/node_modules/@nuxt/ui/dist/runtime/composables/useComponentIcons.d'
-  import('./node_modules/.pnpm/@nuxt+ui@3.2.0_@babel+parse_dd1ecbc991e5456f3362888c3f8f4398/node_modules/@nuxt/ui/dist/runtime/composables/useComponentIcons.d')
-  // @ts-ignore
-  export type { KbdKey, KbdKeySpecific } from './node_modules/.pnpm/@nuxt+ui@3.2.0_@babel+parse_dd1ecbc991e5456f3362888c3f8f4398/node_modules/@nuxt/ui/dist/runtime/composables/useKbd.d'
-  import('./node_modules/.pnpm/@nuxt+ui@3.2.0_@babel+parse_dd1ecbc991e5456f3362888c3f8f4398/node_modules/@nuxt/ui/dist/runtime/composables/useKbd.d')
-  // @ts-ignore
-  export type { OverlayOptions, Overlay } from './node_modules/.pnpm/@nuxt+ui@3.2.0_@babel+parse_dd1ecbc991e5456f3362888c3f8f4398/node_modules/@nuxt/ui/dist/runtime/composables/useOverlay.d'
-  import('./node_modules/.pnpm/@nuxt+ui@3.2.0_@babel+parse_dd1ecbc991e5456f3362888c3f8f4398/node_modules/@nuxt/ui/dist/runtime/composables/useOverlay.d')
-  // @ts-ignore
-  export type { Toast } from './node_modules/.pnpm/@nuxt+ui@3.2.0_@babel+parse_dd1ecbc991e5456f3362888c3f8f4398/node_modules/@nuxt/ui/dist/runtime/composables/useToast.d'
-  import('./node_modules/.pnpm/@nuxt+ui@3.2.0_@babel+parse_dd1ecbc991e5456f3362888c3f8f4398/node_modules/@nuxt/ui/dist/runtime/composables/useToast.d')
-}
