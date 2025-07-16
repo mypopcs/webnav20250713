@@ -14,6 +14,14 @@
           block
         />
         <UButton
+          to="/categories"
+          icon="i-heroicons-rectangle-stack"
+          size="xl"
+          variant="ghost"
+          label="分类管理"
+          block
+        />
+        <UButton
           icon="i-heroicons-arrow-left-on-rectangle"
           size="xl"
           variant="ghost"

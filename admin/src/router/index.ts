@@ -4,6 +4,7 @@ import { useAuthStore } from '../stores/auth';
 import AdminLayout from '../layouts/AdminLayout.vue';
 import LoginPage from '../views/LoginPage.vue';
 import DashboardPage from '../views/DashboardPage.vue';
+import CategoriesPage from '../views/CategoriesPage.vue'
 
 const routes = [
   {
@@ -22,6 +23,11 @@ const routes = [
         name: 'Dashboard',
         component: DashboardPage,
       },
+      {
+        path: '/categories',
+        name: 'Categories',
+        component: CategoriesPage,
+      }
       // 未来其他的管理页面，如用户管理、网站管理等，都在这里添加
     ],
   },

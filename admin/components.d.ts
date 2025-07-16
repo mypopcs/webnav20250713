@@ -16,5 +16,7 @@ declare module 'vue' {
     UCard: typeof import('./node_modules/.pnpm/@nuxt+ui@3.2.0_@babel+parse_dd1ecbc991e5456f3362888c3f8f4398/node_modules/@nuxt/ui/dist/runtime/components/Card.vue')['default']
     UForm: typeof import('./node_modules/.pnpm/@nuxt+ui@3.2.0_@babel+parse_dd1ecbc991e5456f3362888c3f8f4398/node_modules/@nuxt/ui/dist/runtime/components/Form.vue')['default']
     UInput: typeof import('./node_modules/.pnpm/@nuxt+ui@3.2.0_@babel+parse_dd1ecbc991e5456f3362888c3f8f4398/node_modules/@nuxt/ui/dist/runtime/components/Input.vue')['default']
+    UModal: typeof import('./node_modules/.pnpm/@nuxt+ui@3.2.0_@babel+parse_dd1ecbc991e5456f3362888c3f8f4398/node_modules/@nuxt/ui/dist/runtime/components/Modal.vue')['default']
+    UTable: typeof import('./node_modules/.pnpm/@nuxt+ui@3.2.0_@babel+parse_dd1ecbc991e5456f3362888c3f8f4398/node_modules/@nuxt/ui/dist/runtime/components/Table.vue')['default']
   }
 }
