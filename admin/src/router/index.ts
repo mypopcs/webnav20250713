@@ -6,6 +6,7 @@ import LoginPage from '../views/LoginPage.vue';
 import DashboardPage from '../views/DashboardPage.vue';
 import CategoriesPage from '../views/CategoriesPage.vue'
 import TagsPage from '../views/TagsPage.vue';
+import WebsitesPage from '../views/WebsitesPage.vue'
 
 const routes = [
   {
@@ -33,6 +34,11 @@ const routes = [
         path: '/tags',
         name: 'Tags',
         component: TagsPage,
+      },
+      {
+        path: '/websites',
+        name: 'Websites',
+        component: WebsitesPage,
       }
       // 未来其他的管理页面，如用户管理、网站管理等，都在这里添加
     ],

@@ -7,6 +7,6 @@ export class CreateCategoryDto {
   name: string;
 
   @IsNumber({}, { message: '排序值必须是数字' })
-  @IsOptional() // order 是可选的
+  @IsOptional()
   order?: number;
 }

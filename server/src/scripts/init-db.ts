@@ -113,8 +113,8 @@ async function bootstrap() {
             url: site.url,
             logo: site.logo,
             shortDesc: site.shortDesc,
-            category: categoryDoc._id,
-            tags: tagDocs.map((t) => t._id),
+            category: categoryDoc._id.toString(),
+            tags: tagDocs.map((t) => t._id.toString()),
           });
         }
       }

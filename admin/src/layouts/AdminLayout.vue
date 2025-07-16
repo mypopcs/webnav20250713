@@ -14,6 +14,9 @@
         <el-menu-item index="/tags">
           <el-icon><PriceTag /></el-icon> <span>标签管理</span>
         </el-menu-item>
+        <el-menu-item index="/websites">
+          <el-icon><Link /></el-icon> <span>网站管理</span>
+        </el-menu-item>
         <div class="flex-grow"></div>
         <el-menu-item @click="handleLogout">
           <el-icon><SwitchButton /></el-icon>
@@ -32,7 +35,13 @@ import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import { logoutApi } from "../apis/auth";
 import { ElMessage, ElMessageBox } from "element-plus";
-import { House, Folder, PriceTag, SwitchButton } from "@element-plus/icons-vue";
+import {
+  House,
+  Folder,
+  PriceTag,
+  Link,
+  SwitchButton,
+} from "@element-plus/icons-vue";
 
 const authStore = useAuthStore();
 const router = useRouter();
