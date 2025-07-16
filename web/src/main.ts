@@ -1,5 +1,12 @@
+// /web/src/main.ts
 import { createApp } from 'vue'
+import { createPinia } from 'pinia'
 import App from './App.vue'
-import 'element-plus/dist/index.css'
+// 引入我们为 Tailwind CSS 创建的主样式文件
+import './assets/main.css' 
 
-createApp(App).mount('#app')
+const app = createApp(App)
+const pinia = createPinia()
+
+app.use(pinia)
+app.mount('#app')
