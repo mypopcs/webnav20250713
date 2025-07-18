@@ -1,4 +1,3 @@
-// /server/src/auth/auth.service.ts
 import { Injectable, ConflictException } from '@nestjs/common';
 import { UserService } from '../user/user.service';
 import { RegisterUserDto } from './dto/register-user.dto';
@@ -20,8 +19,13 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
   ) {}
-
+  /**
+   * 用户注册
+   * @param registerUserDto 包含邮箱和密码
+   * @returns 创建后的用户信息（不含密码）
+   */
   async register(registerUserDto: RegisterUserDto): Promise<UserDocument> {
+    // 1. 检查用户是否已存在
     const existingUser = await this.userService.findOneByEmail(
       registerUserDto.email,
     );
