@@ -1,6 +1,8 @@
 <template>
-  <div class="flex items-center justify-center min-h-screen bg-gray-100">
-    <el-card class="w-full max-w-sm" header="后台管理系统登录">
+  <div
+    class="flex items-center justify-center min-h-screen bg-gray-100 max-w-[100px]"
+  >
+    <el-card class="max-w-sm" header="后台管理系统登录">
       <el-form
         ref="formRef"
         :model="form"

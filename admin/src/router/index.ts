@@ -1,45 +1,51 @@
 // /admin/src/router/index.ts
-import { createRouter, createWebHistory } from 'vue-router';
-import { useAuthStore } from '../stores/auth';
-import AdminLayout from '../layouts/AdminLayout.vue';
-import LoginPage from '../views/LoginPage.vue';
-import DashboardPage from '../views/DashboardPage.vue';
-import CategoriesPage from '../views/CategoriesPage.vue'
-import TagsPage from '../views/TagsPage.vue';
-import WebsitesPage from '../views/WebsitesPage.vue'
+import { createRouter, createWebHistory } from "vue-router";
+import { useAuthStore } from "../stores/auth";
+import AdminLayout from "../layouts/AdminLayout.vue";
+import LoginPage from "../views/LoginPage.vue";
+import DashboardPage from "../views/DashboardPage.vue";
+import CategoriesPage from "../views/CategoriesPage.vue";
+import TagsPage from "../views/TagsPage.vue";
+import WebsitesPage from "../views/WebsitesPage.vue";
+import UsersPage from "../views/UsersPage.vue";
 
 const routes = [
   {
-    path: '/login',
-    name: 'Login',
+    path: "/login",
+    name: "Login",
     component: LoginPage,
   },
   {
     // 所有需要登录才能访问的页面，都作为 AdminLayout 的子路由
-    path: '/',
+    path: "/",
     component: AdminLayout,
     meta: { requiresAuth: true }, // 添加一个元信息，表示该路由需要认证
     children: [
       {
-        path: '', // 默认子路由
-        name: 'Dashboard',
+        path: "", // 默认子路由
+        name: "Dashboard",
         component: DashboardPage,
       },
       {
-        path: '/categories',
-        name: 'Categories',
+        path: "/categories",
+        name: "Categories",
         component: CategoriesPage,
       },
       {
-        path: '/tags',
-        name: 'Tags',
+        path: "/tags",
+        name: "Tags",
         component: TagsPage,
       },
       {
-        path: '/websites',
-        name: 'Websites',
+        path: "/websites",
+        name: "Websites",
         component: WebsitesPage,
-      }
+      },
+      {
+        path: "/users",
+        name: "Users",
+        component: UsersPage,
+      },
       // 未来其他的管理页面，如用户管理、网站管理等，都在这里添加
     ],
   },
@@ -67,12 +73,12 @@ router.beforeEach(async (to) => {
   // 2. 检查路由是否需要认证
   if (to.meta.requiresAuth && !authStore.isLoggedIn) {
     // 如果该路由需要认证，但用户未登录，则强制跳转到登录页
-    return { name: 'Login' };
+    return { name: "Login" };
   }
 
   // 3. 如果用户已登录，但又想访问登录页，则让他停留在首页
-  if (to.name === 'Login' && authStore.isLoggedIn) {
-    return { name: 'Dashboard' };
+  if (to.name === "Login" && authStore.isLoggedIn) {
+    return { name: "Dashboard" };
   }
 });
 

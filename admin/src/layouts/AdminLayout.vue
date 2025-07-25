@@ -17,6 +17,10 @@
         <el-menu-item index="/websites">
           <el-icon><Link /></el-icon> <span>网站管理</span>
         </el-menu-item>
+        <el-menu-item index="/users">
+          <el-icon><UserFilled /></el-icon>
+          <span>用户管理</span>
+        </el-menu-item>
         <div class="flex-grow"></div>
         <el-menu-item @click="handleLogout">
           <el-icon><SwitchButton /></el-icon>
@@ -41,6 +45,7 @@ import {
   PriceTag,
   Link,
   SwitchButton,
+  UserFilled,
 } from "@element-plus/icons-vue";
 
 const authStore = useAuthStore();
