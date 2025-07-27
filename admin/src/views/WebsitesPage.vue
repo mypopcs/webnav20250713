@@ -10,10 +10,10 @@
         <template #default="{ row }">
           <el-image
             v-if="row.logo"
-            :src="row.logo"
+            :src="getFullImageUrl(row.logo)"
             fit="contain"
             class="h-12 w-full"
-            :preview-src-list="[row.logo]"
+            :preview-src-list="[getFullImageUrl(row.logo)]"
             preview-teleported
             hide-on-click-modal
           />
@@ -22,15 +22,10 @@
       <el-table-column
         prop="title"
         label="标题"
-        width="200"
+        width="180"
         show-overflow-tooltip
       />
-      <el-table-column
-        prop="url"
-        label="链接"
-        width="250"
-        show-overflow-tooltip
-      >
+      <el-table-column label="链接" width="200" show-overflow-tooltip>
         <template #default="{ row }">
           <el-link :href="row.url" type="primary" target="_blank">{{
             row.url
@@ -38,21 +33,46 @@
         </template>
       </el-table-column>
       <el-table-column prop="shortDesc" label="短描述" show-overflow-tooltip />
+      <el-table-column prop="longDesc" label="长描述" show-overflow-tooltip />
       <el-table-column prop="category.name" label="分类" width="120" />
-      <el-table-column label="标签" width="200">
+      <el-table-column label="标签" width="180">
         <template #default="{ row }">
           <div class="flex flex-wrap gap-1">
-            <el-tag v-for="tag in row.tags" :key="tag._id" size="small">
-              {{ tag.name }}
-            </el-tag>
+            <el-tag v-for="tag in row.tags" :key="tag._id" size="small">{{
+              tag.name
+            }}</el-tag>
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="状态" width="80">
+      <el-table-column label="缩略图" width="100">
         <template #default="{ row }">
-          <el-tag :type="row.status ? 'success' : 'info'">
-            {{ row.status ? "显示" : "隐藏" }}
-          </el-tag>
+          <el-popover
+            placement="left"
+            :width="200"
+            trigger="hover"
+            v-if="row.thumbnails?.length"
+          >
+            <template #reference>
+              <el-button link type="primary" size="small">
+                查看 ({{ row.thumbnails.length }})
+              </el-button>
+            </template>
+            <div class="flex flex-col gap-2 max-h-96 overflow-y-auto">
+              <el-image
+                v-for="(thumb, index) in row.thumbnails"
+                :key="index"
+                :src="getFullImageUrl(thumb)"
+                fit="contain"
+                class="w-full h-auto"
+                :preview-src-list="
+                  row.thumbnails.map((t) => getFullImageUrl(t))
+                "
+                :initial-index="index"
+                preview-teleported
+                hide-on-click-modal
+              />
+            </div>
+          </el-popover>
         </template>
       </el-table-column>
       <el-table-column label="操作" width="120" fixed="right">
@@ -71,6 +91,7 @@
       v-model="isModalOpen"
       :title="isEditing ? '编辑网站' : '新建网站'"
       width="800px"
+      @close="formRef?.clearValidate()"
     >
       <el-form
         ref="formRef"
@@ -79,20 +100,30 @@
         label-width="100px"
       >
         <el-form-item label="网站标题" prop="title">
-          <el-input v-model="formState.title" placeholder="请输入网站标题" />
+          <el-input v-model="formState.title" />
         </el-form-item>
         <el-form-item label="网站链接" prop="url">
-          <el-input v-model="formState.url" placeholder="请输入 https://..." />
+          <el-input v-model="formState.url" />
         </el-form-item>
-        <el-form-item label="Logo链接" prop="logo">
-          <el-input v-model="formState.logo" placeholder="请输入 Logo 的 URL" />
-        </el-form-item>
-        <el-form-item label="所属分类" prop="category">
-          <el-select
-            v-model="formState.category"
-            placeholder="请选择分类"
-            class="w-full"
+
+        <el-form-item label="上传Logo" prop="logo">
+          <el-upload
+            v-model:file-list="logoFileList"
+            action="#"
+            list-type="picture-card"
+            :limit="1"
+            :http-request="handleLogoUpload"
+            :on-exceed="handleExceed"
+            :on-preview="handlePictureCardPreview"
+            :on-remove="handleLogoRemove"
+            :before-upload="beforeImageUpload"
           >
+            <el-icon><Plus /></el-icon>
+          </el-upload>
+        </el-form-item>
+
+        <el-form-item label="所属分类" prop="category">
+          <el-select v-model="formState.category" class="w-full">
             <el-option
               v-for="cat in allCategories"
               :key="cat._id"
@@ -102,12 +133,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="所属标签" prop="tags">
-          <el-select
-            v-model="formState.tags"
-            multiple
-            placeholder="可选择多个标签"
-            class="w-full"
-          >
+          <el-select v-model="formState.tags" multiple class="w-full">
             <el-option
               v-for="tag in allTags"
               :key="tag._id"
@@ -117,43 +143,24 @@
           </el-select>
         </el-form-item>
         <el-form-item label="短描述" prop="shortDesc">
-          <el-input
-            v-model="formState.shortDesc"
-            type="textarea"
-            :rows="2"
-            placeholder="最多100字"
-          />
+          <el-input v-model="formState.shortDesc" type="textarea" :rows="2" />
         </el-form-item>
         <el-form-item label="长描述" prop="longDesc">
-          <el-input
-            v-model="formState.longDesc"
-            type="textarea"
-            :rows="4"
-            placeholder="详细介绍（可选）"
-          />
+          <el-input v-model="formState.longDesc" type="textarea" :rows="4" />
         </el-form-item>
-        <el-form-item
-          v-for="(thumbnail, index) in formState.thumbnails"
-          :key="index"
-          :label="'缩略图 ' + (index + 1)"
-          :prop="'thumbnails.' + index"
-        >
-          <el-input
-            v-model="formState.thumbnails[index]"
-            placeholder="请输入图片链接"
+        <el-form-item label="缩略图" prop="thumbnails">
+          <el-upload
+            v-model:file-list="thumbnailFileList"
+            action="#"
+            list-type="picture-card"
+            :http-request="handleThumbnailUpload"
+            :on-preview="handlePictureCardPreview"
+            :on-remove="handleThumbnailRemove"
+            :before-upload="beforeImageUpload"
+            :limit="5"
           >
-            <template #append>
-              <el-button :icon="Delete" @click="removeThumbnail(index)" />
-            </template>
-          </el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button
-            @click="addThumbnail"
-            :disabled="formState.thumbnails.length >= 5"
-          >
-            添加缩略图
-          </el-button>
+            <el-icon><Plus /></el-icon>
+          </el-upload>
         </el-form-item>
         <el-form-item label="状态" prop="status">
           <el-switch v-model="formState.status" />
@@ -166,26 +173,40 @@
         >
       </template>
     </el-dialog>
+
+    <el-dialog v-model="dialogVisible">
+      <img
+        w-full
+        :src="dialogImageUrl"
+        alt="Preview Image"
+        style="width: 100%"
+      />
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, reactive } from "vue";
+import { uploadImageApi } from "@/apis/upload";
 import {
   getAllWebsitesApi,
   createWebsiteApi,
   updateWebsiteApi,
   deleteWebsiteApi,
-} from "../apis/website";
-import { getAllCategoriesApi } from "../apis/category";
-import { getAllTagsApi } from "../apis/tag";
+} from "@/apis/website";
+import { getAllCategoriesApi } from "@/apis/category";
+import { getAllTagsApi } from "@/apis/tag";
 import {
   ElMessage,
   ElMessageBox,
   type FormInstance,
   type FormRules,
+  type UploadRequestOptions,
+  type UploadProps,
+  type UploadUserFile,
+  type UploadRawFile,
 } from "element-plus";
-import { Delete } from "@element-plus/icons-vue";
+import { Plus } from "@element-plus/icons-vue";
 
 // --- 类型定义 ---
 interface Website {
@@ -209,7 +230,7 @@ interface Tag {
   name: string;
 }
 
-// --- 响应式状态 ---
+// --- 基础响应式状态 ---
 const websites = ref<Website[]>([]);
 const allCategories = ref<Category[]>([]);
 const allTags = ref<Tag[]>([]);
@@ -235,12 +256,21 @@ const formState = ref<any>({ ...defaultFormState });
 const formRules = reactive<FormRules>({
   title: [{ required: true, message: "标题不能为空", trigger: "blur" }],
   url: [{ required: true, message: "链接不能为空", trigger: "blur" }],
-  logo: [{ required: true, message: "Logo不能为空", trigger: "blur" }],
+  logo: [{ required: true, message: "必须上传Logo", trigger: "change" }],
   category: [{ required: true, message: "必须选择分类", trigger: "change" }],
   shortDesc: [{ required: true, message: "短描述不能为空", trigger: "blur" }],
 });
 
-// --- 数据获取 ---
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
+
+const getFullImageUrl = (path: string) => {
+  if (!path) return "";
+  if (path.startsWith("http")) return path;
+  return `${API_BASE_URL}${path}`;
+};
+
+// --- 数据获取 (恢复正确逻辑) ---
 const fetchInitialData = async () => {
   isLoading.value = true;
   try {
@@ -258,8 +288,82 @@ const fetchInitialData = async () => {
     isLoading.value = false;
   }
 };
-
 onMounted(fetchInitialData);
+
+// --- 图片上传逻辑 ---
+const beforeImageUpload: UploadProps["beforeUpload"] = (
+  rawFile: UploadRawFile
+) => {
+  const isImage = rawFile.type.startsWith("image/");
+  if (!isImage) {
+    ElMessage.error("只能上传图片文件!");
+    return false;
+  }
+  if (rawFile.size / 1024 / 1024 > 5) {
+    ElMessage.error("图片大小不能超过 5MB!");
+    return false;
+  }
+  return true;
+};
+
+// Logo 文件列表
+const logoFileList = ref<UploadUserFile[]>([]);
+
+const handleLogoUpload = async (options: UploadRequestOptions) => {
+  try {
+    const { data } = await uploadImageApi(options.file);
+    formState.value.logo = data.url;
+    logoFileList.value = [
+      { name: options.file.name, url: getFullImageUrl(data.url) },
+    ];
+    ElMessage.success("Logo 上传成功");
+  } catch (error) {
+    ElMessage.error("Logo 上传失败");
+    logoFileList.value = [];
+  }
+};
+
+const handleLogoRemove: UploadProps["onRemove"] = () => {
+  formState.value.logo = "";
+};
+
+// 缩略图文件列表
+const thumbnailFileList = ref<UploadUserFile[]>([]);
+
+const handleThumbnailUpload = async (options: UploadRequestOptions) => {
+  try {
+    const { data } = await uploadImageApi(options.file);
+    formState.value.thumbnails.push(data.url);
+    thumbnailFileList.value = formState.value.thumbnails.map((url: string) => ({
+      name: url,
+      url: getFullImageUrl(url),
+      response: { url },
+    }));
+    ElMessage.success("缩略图上传成功");
+  } catch (error) {
+    ElMessage.error("缩略图上传失败");
+  }
+};
+
+const handleThumbnailRemove: UploadProps["onRemove"] = (uploadFile) => {
+  const urlToRemove =
+    (uploadFile.response as any)?.url ||
+    uploadFile.url!.replace(API_BASE_URL, "");
+  formState.value.thumbnails = formState.value.thumbnails.filter(
+    (url: string) => url !== urlToRemove
+  );
+};
+
+// --- 通用上传逻辑 ---
+const handleExceed: UploadProps["onExceed"] = () => {
+  ElMessage.warning("文件数量超出限制");
+};
+const dialogImageUrl = ref("");
+const dialogVisible = ref(false);
+const handlePictureCardPreview: UploadProps["onPreview"] = (uploadFile) => {
+  dialogImageUrl.value = uploadFile.url!;
+  dialogVisible.value = true;
+};
 
 // --- 模态框与表单逻辑 ---
 const openModal = (website?: Website) => {
@@ -271,22 +375,24 @@ const openModal = (website?: Website) => {
       tags: website.tags.map((t) => t._id),
       thumbnails: website.thumbnails || [],
     };
+    logoFileList.value = formState.value.logo
+      ? [{ name: "logo", url: getFullImageUrl(formState.value.logo) }]
+      : [];
+    thumbnailFileList.value = formState.value.thumbnails.map((url: any) => ({
+      name: url,
+      url: getFullImageUrl(url),
+      response: { url },
+    }));
   } else {
     isEditing.value = false;
     formState.value = { ...defaultFormState, thumbnails: [] };
+    logoFileList.value = [];
+    thumbnailFileList.value = [];
   }
   isModalOpen.value = true;
 };
 
-const removeThumbnail = (index: number) => {
-  formState.value.thumbnails.splice(index, 1);
-};
-const addThumbnail = () => {
-  if (formState.value.thumbnails.length < 5) {
-    formState.value.thumbnails.push("");
-  }
-};
-
+// --- 提交与删除逻辑 (恢复正确逻辑) ---
 const handleSubmit = async () => {
   if (!formRef.value) return;
   await formRef.value.validate(async (valid) => {
@@ -306,7 +412,6 @@ const handleSubmit = async () => {
           ),
           status: formState.value.status,
         };
-
         if (isEditing.value) {
           await updateWebsiteApi(formState.value._id, payload);
         } else {
@@ -324,13 +429,10 @@ const handleSubmit = async () => {
   });
 };
 
-// --- 删除逻辑 ---
 const handleDelete = async (row: Website) => {
   try {
     await ElMessageBox.confirm(`您确定要删除网站 "${row.title}" 吗？`, "警告", {
       type: "warning",
-      confirmButtonText: "确定删除",
-      cancelButtonText: "取消",
     });
     await deleteWebsiteApi(row._id);
     ElMessage.success("删除成功");

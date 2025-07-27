@@ -8,6 +8,7 @@ import { CategoryModule } from './category/category.module';
 import { TagModule } from './tag/tag.module';
 import { WebsiteModule } from './website/website.module';
 import { AuthModule } from './auth/auth.module';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
   imports: [
@@ -46,6 +47,8 @@ import { AuthModule } from './auth/auth.module';
     WebsiteModule,
 
     AuthModule,
+
+    UploadModule,
   ],
   controllers: [AppController],
   providers: [AppService],
